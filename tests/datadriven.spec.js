@@ -13,9 +13,8 @@ test.describe(`testing data driven with playwright`, async ()=> {
       //column : refers to names like todo, inprogress, done
       //task: refers to the name of the task under column
       //tags : refers the tags given to each taks e.g bug, priority, design 
-    test(`Verify task "${task}" is under the "${column}" and tasks have tags: ${tags.join(', ')}`, async ({ page }) => {
-      await page.goto('https://animated-gingersnap-8cf7f2.netlify.app/')
-      
+  test(`Verify task "${task}" is under the "${column}" and tasks have tags: ${tags.join(', ')}`, async ({ page }) => {
+     
       // Locate the parent div element that contains both the column and tasks
       const parentLocator = page.locator('main').locator('div:has(h2)');
 
@@ -46,7 +45,6 @@ test.describe(`testing data driven with playwright`, async ()=> {
     //task: refers to the name of the task under column
     //tags : refers the tags given to each taks e.g bug, priority, design 
   test(`Verify task "${task}" is under the "${column}" and tasks have tags: ${tags.join(', ')}`, async ({ page }) => {
-    await page.goto('https://animated-gingersnap-8cf7f2.netlify.app/')
     await page.locator(`button h2:has-text("Mobile Application")`).click()
     // Locate the parent div element that contains both the column and tasks
     const parentLocator = page.locator('main').locator('div:has(h2)');
