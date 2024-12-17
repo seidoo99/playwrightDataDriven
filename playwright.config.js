@@ -1,10 +1,11 @@
 const { defineConfig } = require('@playwright/test');
-
+require('dotenv').config();
 module.exports = defineConfig({
   use: {
     baseURL: 'https://animated-gingersnap-8cf7f2.netlify.app/',
-    Email: 'admin', 
-    Password: 'password123'
-
-  },
+  } ,
+  extra: {
+    Email: process.env.EMAIL,
+    Password: process.env.PASSWORD,
+  }
 });

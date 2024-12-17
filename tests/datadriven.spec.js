@@ -3,86 +3,75 @@ const webAppTestData = require('../data/webAppTestData.json');
 const mobileAppTestData = require('../data/mobileAppTestData.json');
 const {login} = require('./login')
 test.describe(`testing data driven with playwright`, async ()=> {
-    // async function login(page) {
-    //     await page.goto(baseURL);
-    //      //navigate to the url
-    //     await page.goto(baseURL);
-    //     // Fill the username field 
-    //     await page.locator('id=username').fill('admin');
-    //     //fill password field 
-    //     await page.locator('id=password').fill('password123');
-    //    // Click submit element 
-    //    await page.locator('[type="submit"]').click();
-    //    const title = await page.title();
-    //    console.log(title)
-    //    //use assertion to validate title
-    //    await page.waitForSelector('[id=root] header h1')
-    //     expect(title).toContain("Vite + React + TS");
-    //   }
-    
+  //add before each step to reduce repetitive code
     test.beforeEach(async ({ page, baseURL}) => {
         await login(page, baseURL);
     });
-
-    test.skip(`implement user authentication`, async ({ page,  baseURL}) => {
-    //navigate to the url
-    await page.goto(baseURL);
-    // Fill the username field 
-    await page.locator('id=username').fill('admin');
-    //fill password field 
-    await page.locator('id=password').fill('password123');
-   // Click submit element 
-   await page.locator('[type="submit"]').click();
-//    await page.getByRole('button', { name: 'Sign in' }).click();
-  // get the title of the page 
-   const title = await page.title();
-   console.log(title)
-   //use assertion to validate title
-   await page.waitForSelector('[id=root] header h1')
-    expect(title).toContain("Vite + React + TS");
-
-// get the texts inside the `${column}` 
-  await page.locator('.h-full .rounded-lg h3')
-  // get locators to get the column name 
-  await page.locator('.h-full .rounded-lg h2')
-
-
-
-  });
-    // Loop through webApp test Data and create a test for each task
+    //// seperate the test datas to webAppTestData and mobileTestData to make it easy
+    // Loop through webApp test Data and create a test for each test case 1, 2 and 3
     webAppTestData.forEach(({ column, task, tags }) => {
-    test(`Verify task "${task}" is in "${column}" with tags: ${tags.join(', ')}`, async ({ page }) => {
-      // Locate the column containing the task
-      const columnLocator = page.locator(`.h-full .rounded-lg h2:has-text("${column}")`);
+      //column : refers to names like todo, inprogress, done
+      //task: refers to the name of the task under column
+      //tags : refers the tags given to each taks e.g bug, priority, design 
+    test(`Verify task "${task}" is under the "${column}" and tasks have tags: ${tags.join(', ')}`, async ({ page }) => {
+      await page.goto('https://animated-gingersnap-8cf7f2.netlify.app/')
+      
+      // Locate the parent div element that contains both the column and tasks
+      const parentLocator = page.locator('main').locator('div:has(h2)');
+
+      // Locate the column by its text name
+      const columnLocator = parentLocator.locator(`h2:has-text("${column}")`);
+       //verify couln=mn name match the expected values
       await expect(columnLocator).toBeVisible();
 
-      // Locate the task within the column
-      const taskLocator = columnLocator.locator(`.h-full .rounded-lg h3:has-text=${task}`);
+      // Locate the task within the same parent as the column
+      const taskLocator = parentLocator.locator(`h3:has-text("${task}")`);
+       //verify tasks match the expected values
       await expect(taskLocator).toBeVisible();
 
-      // Validate tags associated with the task
-      const tagLocators = taskLocator.locator('.flex.flex-wrap span');
+      // Locate tags within the task's parent element 
+      const tagLocators = taskLocator.locator('..').locator('.flex.flex-wrap span');
+      //returns array of strings
       const visibleTags = await tagLocators.allTextContents();
-      expect(visibleTags).toEqual(tags); // Compare actual tags with expected tags
+
+      console.log('Visible tags:', visibleTags);
+
+      // Verify the tags match the expected values
+      expect(visibleTags).toEqual(tags);
     });
   });
- 
-  // mobileAppTestData.forEach(({ column, task, tags }) => {
-  //   test(`Verify task "${task}" is in "${column}" with tags: ${tags.join(', ')}`, async ({ page }) => {
-  //     // Locate the column containing the task
-  //     const columnLocator = page.locator(`.h-full .rounded-lg h2:has-text("${column}")`);
-  //     await expect(columnLocator).toBeVisible();
+  // Loop through wmobileAppTesData test Data and create a test for each test case 4, 5 and 6
+ mobileAppTestData.forEach(({ column, task, tags }) => {
+    //column : refers to names like todo, inprogress, done
+    //task: refers to the name of the task under column
+    //tags : refers the tags given to each taks e.g bug, priority, design 
+  test(`Verify task "${task}" is under the "${column}" and tasks have tags: ${tags.join(', ')}`, async ({ page }) => {
+    await page.goto('https://animated-gingersnap-8cf7f2.netlify.app/')
+    await page.locator(`button h2:has-text("Mobile Application")`).click()
+    // Locate the parent div element that contains both the column and tasks
+    const parentLocator = page.locator('main').locator('div:has(h2)');
 
-  //     // Locate the task within the column
-  //     const taskLocator = columnLocator.locator(`.h-full .rounded-lg h3:has-text=${task}`);
-  //     await expect(taskLocator).toBeVisible();
+    // Locate the column by its text name
+    const columnLocator = parentLocator.locator(`h2:has-text("${column}")`);
+     //verify couln=mn name match the expected values
+    await expect(columnLocator).toBeVisible();
 
-  //     // Validate tags associated with the task
-  //     const tagLocators = taskLocator.locator('.flex.flex-wrap span');
-  //     const visibleTags = await tagLocators.allTextContents();
-  //     expect(visibleTags).toEqual(tags); // Compare actual tags with expected tags
-  //   });
-  // });
+    // Locate the task within the same parent as the column
+    const taskLocator = parentLocator.locator(`h3:has-text("${task}")`);
+     //verify tasks match the expected values
+    await expect(taskLocator).toBeVisible();
+
+    // Locate tags within the task's parent element 
+    const tagLocators = taskLocator.locator('..').locator('.flex.flex-wrap span');
+    //returns array of strings
+    const visibleTags = await tagLocators.allTextContents();
+
+    console.log('Visible tags:', visibleTags);
+
+    // Verify the tags match the expected values
+    expect(visibleTags).toEqual(tags);
+  });
+});
 
 
 })
